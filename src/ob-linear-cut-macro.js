@@ -1,10 +1,7 @@
 
-function generateGCode() {
-  const xMovement = parseFloat($("#xMovement").val())
-  const yMovement = parseFloat($("#yMovement").val())
-  const zMovement = parseFloat($("#zMovement").val())
-  const stepDown = parseFloat($("#stepDown").val())
-  const feedrate = parseInt($("#feedrate").val())
+function generateGCode(xMovement, yMovement, zMovement, stepDown, feedrate) {
+  if (zMovement <= 0 || stepDown <= 0)
+    return;
   var x0 = 0
   var y0 = 0
   var z0 = 0
@@ -68,6 +65,9 @@ function generateGCode() {
 
   // refresh 3D view
   parseGcodeInWebWorker(editor.getValue())
+
+  // required for testing
+  return gCode;
 }
 
 function genInputHtml(label, id, value, icon, descr) {
@@ -98,7 +98,12 @@ Metro.dialog.create({
       caption: "Generate G-Code",
       cls: "js-dialog-close success",
       onclick: function () {
-        generateGCode()
+        const xMovement = parseFloat($("#xMovement").val())
+        const yMovement = parseFloat($("#yMovement").val())
+        const zMovement = parseFloat($("#zMovement").val())
+        const stepDown = parseFloat($("#stepDown").val())
+        const feedrate = parseInt($("#feedrate").val())
+        generateGCode(xMovement, yMovement, zMovement, stepDown, feedrate)
       }
     }, {
       caption: "Cancel",
@@ -108,3 +113,7 @@ Metro.dialog.create({
     }
   ]
 });
+
+// required for jest test 
+if (process.env.JEST_WORKER_ID !== undefined)
+  module.exports = generateGCode;
